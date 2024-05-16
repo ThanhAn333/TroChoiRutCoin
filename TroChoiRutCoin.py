@@ -31,8 +31,8 @@ class LastCoinStanding(TwoPlayerGame):
         self.nplayer = 3 - self.nplayer
 
     @property
-    def current_player_name(self):
-        return self.players[self.nplayer - 1].name
+    def current_player(self):
+        return self.nplayer
 
     def opponent(self):
         return 3 - self.nplayer
@@ -46,9 +46,14 @@ def main():
     if mode == "Người với AI":
         difficulty = st.selectbox("Chọn mức độ khó của AI:", ("Dễ", "Trung bình", "Khó"))
         difficulty_map = {"Dễ": 2, "Trung bình": 4, "Khó": 6}
-        players = [Human_Player(name="Người chơi 1"), AI_Player(Negamax(depth=difficulty_map[difficulty]), name="Bot")]
+        players = [Human_Player(), AI_Player(Negamax(depth=difficulty_map[difficulty]))]
     else:
-        players = [Human_Player(name="Người chơi 1"), Human_Player(name="Người chơi 2")]
+        players = [Human_Player(), Human_Player()]
+
+    player_names = []
+    for i in range(2):
+        player_name = st.text_input(f"Tên người chơi {i+1}:", f"Người chơi {i+1}")
+        player_names.append(player_name)
 
     start_game = st.button("Bắt đầu trò chơi")
 
@@ -56,7 +61,7 @@ def main():
         game = LastCoinStanding(players)
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player_name}:", key=f"{game.current_player_name}_text_input")
+            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=hash((game.current_player, 'text_input')))
             
             if st.button("Thực hiện nước đi"):
                 if game.is_valid_move(move):
@@ -69,7 +74,9 @@ def main():
                             if not game.is_over():
                                 game.switch_player()
                     else:
-                        st.write(f"{game.current_player_name} đã thắng!")
+                        winner_index = game.opponent() - 1 if mode == "Người với AI" else game.nplayer - 1
+                        winner_name = "Bot" if winner_index == 1 else player_names[0]
+                        st.write(f"{winner_name} đã thắng!")
                         break
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
