@@ -68,16 +68,14 @@ def play_game(game, player_names):
 
         if game.current_player == 1:
             with st.form(key='player_1_form'):
-            move = st.text_input("Người chơi 1, nhập nước đi:")
-            submit_button = st.form_submit_button(label='Thực hiện nước đi')
-            if submit_button:
-                if game.is_valid_move(move):
-                    game.make_move(move)
-                    game.switch_player()
-                else:
+                move = st.text_input("Người chơi 1, nhập nước đi:")
+                submit_button = st.form_submit_button(label='Thực hiện nước đi')
+                if submit_button:
+                    if game.is_valid_move(move):
+                        game.make_move(move)
+                        game.switch_player()
+                    else:
                         st.write("Nước đi không hợp lệ. Hãy thử lại.")
-            else:
-                    st.write("Nước đi không hợp lệ. Hãy thử lại.")
         else:
             st.write("AI đang chơi...")
             ai_move = game.get_move()
