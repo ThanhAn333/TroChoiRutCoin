@@ -57,12 +57,12 @@ def main():
 
     start_game = st.button("Bắt đầu trò chơi")
 
-    if start_game:
+     if start_game:
         game = LastCoinStanding(players)
-        count = 0  # Thêm đoạn mã này để khởi tạo giá trị cho biến count
+        count = 0
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=hash((game.current_player, 'text_input')))
+            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=count)
             
             submit_button = st.button("Thực hiện nước đi")
             if submit_button:
@@ -82,6 +82,8 @@ def main():
                         break
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
+            
+            count += 1
 
 if __name__ == "__main__":
     main()
