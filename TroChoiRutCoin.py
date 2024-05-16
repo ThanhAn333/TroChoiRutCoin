@@ -61,7 +61,7 @@ def main():
         game = LastCoinStanding(players)
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=str(game.current_player))
+            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=hash((game.current_player, 'text_input')))
             
             if st.button("Thực hiện nước đi"):
                 if game.is_valid_move(move):
