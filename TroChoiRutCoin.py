@@ -37,12 +37,20 @@ class LastCoinStanding(TwoPlayerGame):
     def opponent(self):
         return 3 - self.nplayer
 
+class AI_Player(Human_Player):
+    def __init__(self, AI_algo):
+        self.AI_algo = AI_algo
+
+    def get_move(self, game):
+        move = self.AI_algo(game)
+        return str(move)
+
 def main():
     st.title("Last Coin Standing")
 
     play_mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
     player_names = []
-    for i in range(2):     
+    for i in range(2):
         player_name = st.text_input(f"Nhập tên của Người chơi {i+1}:", f"Người chơi {i+1}")
         player_names.append(player_name)
 
@@ -67,16 +75,18 @@ def play_game(game, player_names):
         st.write(f"Còn {game.num_coins} tiền xu trong chồng")
 
         if game.current_player == 1:
-            move = st.text_input("Người chơi 1, nhập nước đi:")
-            if st.button("Thực hiện nước đi"):
-                if game.is_valid_move(move):
-                    game.make_move(move)
-                    game.switch_player()
-                else:
-                    st.write("Nước đi không hợp lệ. Hãy thử lại.")
+            with st.form(key='player_1_form'):
+                move = st.text_input("Người chơi 1, nhập nước đi:")
+                submit_button = st.form_submit_button(label='Thực hiện nước đi')
+                if submit_button:
+                    if game.is_valid_move(move):
+                        game.make_move(move)
+                        game.switch_player()
+                    else:
+                        st.write("Nước đi không hợp lệ. Hãy thử lại.")
         else:
             st.write("AI đang chơi...")
-            ai_move = game.get_move()
+            ai_move = game.players[1].get_move(game)
             game.make_move(ai_move)
             game.switch_player()
 
