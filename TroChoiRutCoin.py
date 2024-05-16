@@ -28,7 +28,7 @@ class LastCoinStanding(TwoPlayerGame):
         return move.isdigit() and 1 <= int(move) <= min(self.max_coins, self.num_coins)
 
     def switch_player(self):
-        self.nplayer = 3 - self.nplayer  # Chuyển đổi sang người chơi tiếp theo
+        self.nplayer = 3 - self.nplayer
 
     @property
     def current_player(self):
@@ -37,66 +37,46 @@ class LastCoinStanding(TwoPlayerGame):
     def opponent(self):
         return 3 - self.nplayer
 
-class AI_Player(Human_Player):
-    def __init__(self, AI_algo):
-        self.AI_algo = AI_algo
-
-    def get_move(self, game):
-        move = self.AI_algo(game)
-        return str(move)
-
 def main():
     st.title("Last Coin Standing")
 
-    play_mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
+    mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
+
+    if mode == "Người với AI":
+        difficulty = st.selectbox("Chọn mức độ khó của AI:", ("Dễ", "Trung bình", "Khó"))
+        difficulty_map = {"Dễ": 2, "Trung bình": 4, "Khó": 6}
+        players = [Human_Player(), AI_Player(Negamax(difficulty_map[difficulty]))]
+    else:
+        players = [Human_Player(), Human_Player()]
+
     player_names = []
     for i in range(2):
-        player_name = st.text_input(f"Nhập tên của Người chơi {i+1}:", f"Người chơi {i+1}")
+        player_name = st.text_input(f"Tên người chơi {i+1}:", f"Người chơi {i+1}")
         player_names.append(player_name)
 
-    difficulty_level = st.selectbox("Chọn mức độ khó của AI:", ("Dễ", "Trung bình", "Khó"))
+    start_game = st.button("Bắt đầu trò chơi")
 
-    if st.button("Bắt đầu trò chơi"):
-        if len(set(player_names)) < 2:
-            st.write("Tên người chơi phải khác nhau và không được để trống.")
-        else:
-            difficulty_map = {"Dễ": 2, "Trung bình": 4, "Khó": 6}
-            difficulty = difficulty_map[difficulty_level]
-            if play_mode == "Người với AI":
-                players = [Human_Player(), AI_Player(Negamax(difficulty))]
-            else:
-                players = [Human_Player(), Human_Player()]
-
-            game = LastCoinStanding(players)
-            play_game(game, player_names)
-
-def play_game(game, player_names):
-    move_number = 0  # Initialize move number
-    while not game.is_over():
-        st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-
-        current_player_name = player_names[game.current_player - 1]
-        move_number += 1  # Increment move number
-        form_key = f"player_{game.current_player}_form"  # Generate unique key for form
-        move_key = f"move_{move_number}"  # Generate unique key for text input
-        with st.form(key=form_key):
-            move = st.text_input(f"{current_player_name}, nhập nước đi:", key=move_key)
-            submit_button = st.form_submit_button("Thực hiện nước đi")
-            if submit_button:
-                if game.current_player == 1:
-                    if game.is_valid_move(move):
-                        game.make_move(move)
-                        game.switch_player()
-                    else:
-                        st.write("Nước đi không hợp lệ. Hãy thử lại.")
-                else:
-                    st.write("AI đang chơi...")
-                    ai_move = game.get_move()
-                    game.make_move(ai_move)
+    if start_game:
+        game = LastCoinStanding(players)
+        while not game.is_over():
+            st.write(f"Còn {game.num_coins} tiền xu trong chồng")
+            move = st.text_input("Nhập nước đi của bạn:")
+            if game.is_valid_move(move):
+                game.make_move(move)
+                if not game.is_over():
                     game.switch_player()
-
-    winner_name = player_names[game.opponent() - 1]
-    st.write(f"{winner_name} đã thắng!")
+                    if isinstance(game.players[game.nplayer - 1], AI_Player):
+                        ai_move = game.get_move()
+                        game.make_move(ai_move)
+                        if not game.is_over():
+                            game.switch_player()
+                else:
+                    winner_index = game.opponent() - 1 if mode == "Người với AI" else game.nplayer - 1
+                    winner_name = "Bot" if winner_index == 1 else player_names[0]
+                    st.write(f"{winner_name} đã thắng!")
+                    break
+            else:
+                st.write("Nước đi không hợp lệ. Hãy thử lại.")
 
 if __name__ == "__main__":
     main()
