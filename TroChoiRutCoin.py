@@ -46,7 +46,7 @@ def main():
     if mode == "Người với AI":
         difficulty = st.selectbox("Chọn mức độ khó của AI:", ("Dễ", "Trung bình", "Khó"))
         difficulty_map = {"Dễ": 2, "Trung bình": 4, "Khó": 6}
-        players = [Human_Player(), AI_Player(Negamax(difficulty_map[difficulty]))]
+        players = [Human_Player(), AI_Player(Negamax(depth=difficulty_map[difficulty]))]
     else:
         players = [Human_Player(), Human_Player()]
 
@@ -61,10 +61,9 @@ def main():
         game = LastCoinStanding(players)
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=str(count) + "-" + str(game.current_player))
+            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=str(game.current_player))
             
-            submit_button = st.button("Thực hiện nước đi")
-            if submit_button:
+            if st.button("Thực hiện nước đi"):
                 if game.is_valid_move(move):
                     game.make_move(move)
                     if not game.is_over():
@@ -75,7 +74,7 @@ def main():
                             if not game.is_over():
                                 game.switch_player()
                     else:
-                        winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
+                        winner_index = game.opponent() - 1 if mode == "Người với AI" else game.nplayer - 1
                         winner_name = "Bot" if winner_index == 1 else player_names[0]
                         st.write(f"{winner_name} đã thắng!")
                         break
