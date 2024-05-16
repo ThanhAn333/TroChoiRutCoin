@@ -57,26 +57,26 @@ def main():
     start_game = st.button("Bắt đầu trò chơi")
 
     if start_game:
-        game = LastCoinStanding(players)
-        while not game.is_over():
-            st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-            move = st.text_input("Nhập nước đi của bạn:")
-            if game.is_valid_move(move):
-                game.make_move(move)
-                if not game.is_over():
-                    game.switch_player()
-                    if isinstance(game.players[game.nplayer - 1], AI_Player):
-                        ai_move = game.get_move()
-                        game.make_move(ai_move)
-                        if not game.is_over():
-                            game.switch_player()
-                else:
-                    winner_index = game.opponent() - 1 if mode == "Người với AI" else game.nplayer - 1
-                    winner_name = "Bot" if winner_index == 1 else player_names[0]
-                    st.write(f"{winner_name} đã thắng!")
-                    break
+    game = LastCoinStanding(players)
+    while not game.is_over():
+        st.write(f"Còn {game.num_coins} tiền xu trong chồng")
+        move = st.text_input("Nhập nước đi của bạn:")
+        if game.is_valid_move(move):
+            game.make_move(move)
+            if not game.is_over():
+                game.switch_player()
+                if isinstance(game.players[game.nplayer - 1], AI_Player):
+                    ai_move = game.get_move()
+                    game.make_move(ai_move)
+                    if not game.is_over():
+                        game.switch_player()
             else:
-                st.write("Nước đi không hợp lệ. Hãy thử lại.")
+                winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
+                winner_name = "Bot" if winner_index == 1 else player_names[0]
+                st.write(f"{winner_name} đã thắng!")
+                break
+        else:
+            st.write("Nước đi không hợp lệ. Hãy thử lại.")
 
 if __name__ == "__main__":
     main()
