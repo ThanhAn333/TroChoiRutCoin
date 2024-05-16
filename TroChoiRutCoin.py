@@ -59,11 +59,13 @@ def main():
 
     if start_game:
         game = LastCoinStanding(players)
+        count = 0  # Thêm đoạn mã này để khởi tạo giá trị cho biến count
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
             move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=hash((game.current_player, 'text_input')))
             
-            if st.button("Thực hiện nước đi"):
+            submit_button = st.button("Thực hiện nước đi")
+            if submit_button:
                 if game.is_valid_move(move):
                     game.make_move(move)
                     if not game.is_over():
@@ -74,7 +76,7 @@ def main():
                             if not game.is_over():
                                 game.switch_player()
                     else:
-                        winner_index = game.opponent() - 1 if mode == "Người với AI" else game.nplayer - 1
+                        winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
                         winner_name = "Bot" if winner_index == 1 else player_names[0]
                         st.write(f"{winner_name} đã thắng!")
                         break
