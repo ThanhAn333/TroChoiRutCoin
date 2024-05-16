@@ -57,7 +57,7 @@ def main():
 
     start_game = st.button("Bắt đầu trò chơi")
 
-     if start_game:
+    if start_game:
         game = LastCoinStanding(players)
         count = 0
         while not game.is_over():
