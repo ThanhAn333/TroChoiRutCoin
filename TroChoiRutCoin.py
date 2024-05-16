@@ -71,24 +71,29 @@ def main():
             play_game(game, player_names)
 
 def play_game(game, player_names):
+    move_number = 0  # Initialize move number
     while not game.is_over():
         st.write(f"Còn {game.num_coins} tiền xu trong chồng")
 
-        if game.current_player == 1:
-            with st.form(key='player_1_form'):
-                move = st.text_input("Người chơi 1, nhập nước đi:")
-                submit_button = st.form_submit_button(label='Thực hiện nước đi')
-                if submit_button:
+        current_player_name = player_names[game.current_player - 1]
+        move_number += 1  # Increment move number
+        form_key = f"player_{game.current_player}_form"  # Generate unique key for form
+        move_key = f"move_{move_number}"  # Generate unique key for text input
+        with st.form(key=form_key):
+            move = st.text_input(f"{current_player_name}, nhập nước đi:", key=move_key)
+            submit_button = st.form_submit_button("Thực hiện nước đi")
+            if submit_button:
+                if game.current_player == 1:
                     if game.is_valid_move(move):
                         game.make_move(move)
                         game.switch_player()
                     else:
                         st.write("Nước đi không hợp lệ. Hãy thử lại.")
-        else:
-            st.write("AI đang chơi...")
-            ai_move = game.players[1].get_move(game)
-            game.make_move(ai_move)
-            game.switch_player()
+                else:
+                    st.write("AI đang chơi...")
+                    ai_move = game.get_move()
+                    game.make_move(ai_move)
+                    game.switch_player()
 
     winner_name = player_names[game.opponent() - 1]
     st.write(f"{winner_name} đã thắng!")
