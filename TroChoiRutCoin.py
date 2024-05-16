@@ -38,7 +38,7 @@ class LastCoinStanding(TwoPlayerGame):
         return 3 - self.nplayer
 
 def main():
-    count =0
+    
     st.title("Last Coin Standing")
 
     mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
@@ -62,7 +62,7 @@ def main():
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
             move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=str(count) + "-" + str(game.current_player))
-            count+=1
+            
             submit_button = st.button("Thực hiện nước đi")
             if submit_button:
                 if game.is_valid_move(move):
