@@ -60,6 +60,7 @@ def main():
         game = LastCoinStanding(players)
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
+<<<<<<< HEAD
             move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:")
             submit_button = st.button("Thực hiện nước đi")
             if submit_button:
@@ -79,6 +80,28 @@ def main():
                         break
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
+=======
+            with st.form("my_form"):
+                move = st.text_input("Nhập nước đi của bạn:")
+                submit_button = st.form_submit_button("Thực hiện nước đi")
+                if submit_button:
+                    if game.is_valid_move(move):
+                        game.make_move(move)
+                        if not game.is_over():
+                            game.switch_player()
+                            if isinstance(game.players[game.nplayer - 1], AI_Player):
+                                ai_move = game.get_move()
+                                game.make_move(ai_move)
+                                if not game.is_over():
+                                    game.switch_player()
+                        else:
+                            winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
+                            winner_name = "Bot" if winner_index == 1 else player_names[0]
+                            st.write(f"{winner_name} đã thắng!")
+                            break
+                    else:
+                        st.write("Nước đi không hợp lệ. Hãy thử lại.")
+>>>>>>> 880166e1fd5b1d17fca10c874231f3d0e99019a9
 
 if __name__ == "__main__":
     main()
