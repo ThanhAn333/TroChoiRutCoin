@@ -38,14 +38,20 @@ class LastCoinStanding(TwoPlayerGame):
         return 3 - self.nplayer
 
 def main():
-    st.title("Last Coin Standing")
-
+    st.title("Trò Chơi Rút Xu Cuối Cùng")
+    st.sidebar.title("Hướng dẫn trò chơi")
+    
+    st.sidebar.markdown("""
+    - Mục tiêu: Là người rút xu cuối cùng từ chồng tiền xu.
+    - Mỗi lượt, người chơi có thể rút từ 1 đến 4 xu.
+    - Người chơi nào rút hết xu về 0 cuối cùng sẽ thắng.
+    """)
     mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
 
     if mode == "Người với AI":
         difficulty = st.selectbox("Chọn mức độ khó của AI:", ("Dễ", "Trung bình", "Khó"))
         difficulty_map = {"Dễ": 2, "Trung bình": 4, "Khó": 6}
-        players = [Human_Player(), AI_Player(Negamax(difficulty_map[difficulty]))]
+        players = [Human_Player(), AI_Player(Negamax(depth=difficulty_map[difficulty]))]
     else:
         players = [Human_Player(), Human_Player()]
 
@@ -57,51 +63,65 @@ def main():
     start_game = st.button("Bắt đầu trò chơi")
 
     if start_game:
-        game = LastCoinStanding(players)
-        while not game.is_over():
-            st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-<<<<<<< HEAD
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:")
-            submit_button = st.button("Thực hiện nước đi")
+        # Khởi tạo trạng thái trò chơi trong session state
+        st.session_state.game = LastCoinStanding(players)
+        st.session_state.move_count = 0
+        st.session_state.game_over = False
+        st.session_state.current_player_name = player_names[0]
+
+    if 'game' in st.session_state and not st.session_state.game_over:
+        game = st.session_state.game
+        move_count = st.session_state.move_count
+        
+        st.write(f"Còn {game.num_coins} tiền xu trong chồng")
+        
+        if isinstance(game.players[game.current_player - 1], Human_Player):
+            move = st.text_input(f"Nhập nước đi của {st.session_state.current_player_name}:", key=f"move_input_{move_count}")
+            submit_button = st.button("Thực hiện nước đi", key=f"submit_button_{move_count}")
             if submit_button:
                 if game.is_valid_move(move):
                     game.make_move(move)
+                    move_count += 1
+                    st.session_state.move_count = move_count
                     if not game.is_over():
                         game.switch_player()
-                        if isinstance(game.players[game.nplayer - 1], AI_Player):
+                        st.session_state.current_player_name = player_names[game.current_player - 1]
+                        # AI thực hiện nước đi ngay lập tức nếu đến lượt AI
+                        if isinstance(game.players[game.current_player - 1], AI_Player):
                             ai_move = game.get_move()
+                            st.write(f"AI chọn: {ai_move}")
                             game.make_move(ai_move)
+                            move_count += 1
+                            st.session_state.move_count = move_count
                             if not game.is_over():
                                 game.switch_player()
+                                st.session_state.current_player_name = player_names[game.current_player - 1]
+                            else:
+                                st.session_state.game_over = True
+                                st.write("AI đã thắng!")
                     else:
-                        winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
-                        winner_name = "Bot" if winner_index == 1 else player_names[0]
-                        st.write(f"{winner_name} đã thắng!")
-                        break
+                        st.session_state.game_over = True
+                        st.write(f"{st.session_state.current_player_name} đã thắng!")
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
-=======
-            with st.form("my_form"):
-                move = st.text_input("Nhập nước đi của bạn:")
-                submit_button = st.form_submit_button("Thực hiện nước đi")
-                if submit_button:
-                    if game.is_valid_move(move):
-                        game.make_move(move)
-                        if not game.is_over():
-                            game.switch_player()
-                            if isinstance(game.players[game.nplayer - 1], AI_Player):
-                                ai_move = game.get_move()
-                                game.make_move(ai_move)
-                                if not game.is_over():
-                                    game.switch_player()
-                        else:
-                            winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
-                            winner_name = "Bot" if winner_index == 1 else player_names[0]
-                            st.write(f"{winner_name} đã thắng!")
-                            break
-                    else:
-                        st.write("Nước đi không hợp lệ. Hãy thử lại.")
->>>>>>> 880166e1fd5b1d17fca10c874231f3d0e99019a9
+        else:
+            ai_move = game.get_move()
+            st.write(f"AI chọn: {ai_move}")
+            game.make_move(ai_move)
+            move_count += 1
+            st.session_state.move_count = move_count
+            if not game.is_over():
+                game.switch_player()
+                st.session_state.current_player_name = player_names[game.current_player - 1]
+            else:
+                st.session_state.game_over = True
+                st.write("AI đã thắng!")
+
+        st.button("Chơi lại", on_click=reset_game)
+
+def reset_game():
+    for key in st.session_state.keys():
+        del st.session_state[key]
 
 if __name__ == "__main__":
     main()
