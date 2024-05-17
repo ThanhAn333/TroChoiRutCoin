@@ -59,31 +59,33 @@ def main():
 
     if start_game:
         game = LastCoinStanding(players)
-        count = 0
+        move_count = 0
+
         while not game.is_over():
             st.write(f"Còn {game.num_coins} tiền xu trong chồng")
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=count)
             
-            submit_button = st.button("Thực hiện nước đi")
-            if submit_button:
-                if game.is_valid_move(move):
-                    game.make_move(move)
-                    if not game.is_over():
-                        game.switch_player()
-                        if isinstance(game.players[game.nplayer - 1], AI_Player):
-                            ai_move = game.get_move()
-                            game.make_move(ai_move)
-                            if not game.is_over():
-                                game.switch_player()
+            if isinstance(game.players[game.nplayer - 1], Human_Player):
+                move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=f"move_input_{move_count}")
+                submit_button = st.button("Thực hiện nước đi", key=f"submit_button_{move_count}")
+                if submit_button:
+                    if game.is_valid_move(move):
+                        game.make_move(move)
+                        move_count += 1
+                        if not game.is_over():
+                            game.switch_player()
+                        else:
+                            st.write(f"{player_names[game.nplayer - 1]} đã thắng!")
                     else:
-                        winner_index = game.opponent_index() - 1 if mode == "Người với AI" else game.nplayer - 1
-                        winner_name = "Bot" if winner_index == 1 else player_names[0]
-                        st.write(f"{winner_name} đã thắng!")
-                        break
+                        st.write("Nước đi không hợp lệ. Hãy thử lại.")
+            else:
+                ai_move = game.get_move()
+                st.write(f"AI chọn: {ai_move}")
+                game.make_move(ai_move)
+                if not game.is_over():
+                    game.switch_player()
                 else:
-                    st.write("Nước đi không hợp lệ. Hãy thử lại.")
-            
-            count += 1
+                    st.write("AI đã thắng!")
+                move_count += 1
 
 if __name__ == "__main__":
     main()
