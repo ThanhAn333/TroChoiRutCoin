@@ -16,7 +16,7 @@ class LastCoinStanding(TwoPlayerGame):
         self.num_coins -= int(move)
 
     def win(self):
-        return self.num_coins == 0
+         return self.num_coins == 0
 
     def is_over(self):
         return self.win()
@@ -44,7 +44,7 @@ def main():
     st.sidebar.markdown("""
     - Mục tiêu: Là người rút xu cuối cùng từ chồng tiền xu.
     - Mỗi lượt, người chơi có thể rút từ 1 đến 4 xu.
-    - Người chơi nào rút hết xu về 0 cuối cùng sẽ thắng.
+    - Người chơi nào rút xu cuối cùng làm cho chồng xu trở thành rỗng sẽ thua cuộc.
     """)
     mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
 
@@ -98,10 +98,10 @@ def main():
                                 st.session_state.current_player_name = player_names[game.current_player - 1]
                             else:
                                 st.session_state.game_over = True
-                                st.write("AI đã thắng!")
+                                st.write(f"{st.session_state.current_player_name} đã thắng!")
                     else:
                         st.session_state.game_over = True
-                        st.write(f"{st.session_state.current_player_name} đã thắng!")
+                        st.write("Bot đã thắng!")
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
         else:
@@ -115,7 +115,7 @@ def main():
                 st.session_state.current_player_name = player_names[game.current_player - 1]
             else:
                 st.session_state.game_over = True
-                st.write("AI đã thắng!")
+                st.write(f"{st.session_state.current_player_name} đã thua!")
 
         st.button("Chơi lại", on_click=reset_game)
 
