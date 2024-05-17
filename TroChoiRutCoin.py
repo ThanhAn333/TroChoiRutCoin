@@ -16,13 +16,15 @@ class LastCoinStanding(TwoPlayerGame):
         self.num_coins -= int(move)
 
     def win(self):
-         return self.num_coins == 0
+        # Nếu không còn xu, người vừa rút xu cuối cùng thua
+        return self.num_coins == 0
 
     def is_over(self):
         return self.win()
 
     def scoring(self):
-        return 100 if self.win() else 0
+        # Nếu trò chơi kết thúc, người vừa rút xu cuối cùng thua
+        return -100 if self.win() else 0
 
     def is_valid_move(self, move):
         return move.isdigit() and 1 <= int(move) <= min(self.max_coins, self.num_coins)
@@ -37,15 +39,20 @@ class LastCoinStanding(TwoPlayerGame):
     def opponent(self):
         return 3 - self.nplayer
 
+def reset_game():
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+
 def main():
     st.title("Trò Chơi Rút Xu Cuối Cùng")
     st.sidebar.title("Hướng dẫn trò chơi")
     
     st.sidebar.markdown("""
-    - Mục tiêu: Là người rút xu cuối cùng từ chồng tiền xu.
+    - Mục tiêu: Không rút xu cuối cùng từ chồng tiền xu.
     - Mỗi lượt, người chơi có thể rút từ 1 đến 4 xu.
     - Người chơi nào rút xu cuối cùng làm cho chồng xu trở thành rỗng sẽ thua cuộc.
     """)
+    
     mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
 
     if mode == "Người với AI":
@@ -68,6 +75,7 @@ def main():
         st.session_state.move_count = 0
         st.session_state.game_over = False
         st.session_state.current_player_name = player_names[0]
+        st.session_state.mode = mode
 
     if 'game' in st.session_state and not st.session_state.game_over:
         game = st.session_state.game
@@ -83,25 +91,31 @@ def main():
                     game.make_move(move)
                     move_count += 1
                     st.session_state.move_count = move_count
-                    if not game.is_over():
+                    if game.is_over():
+                        st.session_state.game_over = True
+                        if st.session_state.mode == "Người với AI":
+                            if isinstance(game.players[game.current_player - 1], AI_Player):
+                                st.write(f"Chúc mừng {player_names[0]}! Bạn đã thắng!")
+                            else:
+                                st.write("AI đã thắng!")
+                        else:
+                            winner = player_names[game.opponent() - 1]
+                            st.write(f"Chúc mừng {winner}! Bạn đã thắng!")
+                    else:
                         game.switch_player()
                         st.session_state.current_player_name = player_names[game.current_player - 1]
-                        # AI thực hiện nước đi ngay lập tức nếu đến lượt AI
                         if isinstance(game.players[game.current_player - 1], AI_Player):
                             ai_move = game.get_move()
                             st.write(f"AI chọn: {ai_move}")
                             game.make_move(ai_move)
                             move_count += 1
                             st.session_state.move_count = move_count
-                            if not game.is_over():
+                            if game.is_over():
+                                st.session_state.game_over = True
+                                st.write(f"Chúc mừng {player_names[0]}! Bạn đã thắng!")
+                            else:
                                 game.switch_player()
                                 st.session_state.current_player_name = player_names[game.current_player - 1]
-                            else:
-                                st.session_state.game_over = True
-                                st.write(f"{st.session_state.current_player_name} đã thắng!")
-                    else:
-                        st.session_state.game_over = True
-                        st.write("Bot đã thắng!")
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
         else:
@@ -110,18 +124,17 @@ def main():
             game.make_move(ai_move)
             move_count += 1
             st.session_state.move_count = move_count
-            if not game.is_over():
+            if game.is_over():
+                st.session_state.game_over = True
+                st.write(f"Chúc mừng {player_names[0]}! Bạn đã thắng!")
+            else:
                 game.switch_player()
                 st.session_state.current_player_name = player_names[game.current_player - 1]
-            else:
-                st.session_state.game_over = True
-                st.write(f"{st.session_state.current_player_name} đã thua!")
 
-        st.button("Chơi lại", on_click=reset_game)
-
-def reset_game():
-    for key in st.session_state.keys():
-        del st.session_state[key]
+    if st.session_state.get('game_over', False):
+        if st.button("Chơi lại"):
+            reset_game()
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
