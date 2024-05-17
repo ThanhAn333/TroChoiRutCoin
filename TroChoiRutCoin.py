@@ -38,8 +38,14 @@ class LastCoinStanding(TwoPlayerGame):
         return 3 - self.nplayer
 
 def main():
-    st.title("Last Coin Standing")
-
+    st.title("Trò Chơi Rút Xu Cuối Cùng")
+    st.sidebar.title("Hướng dẫn trò chơi")
+    
+    st.sidebar.markdown("""
+    - Mục tiêu: Là người rút xu cuối cùng từ chồng tiền xu.
+    - Mỗi lượt, người chơi có thể rút từ 1 đến 4 xu.
+    - Người chơi nào rút hết xu về 0 cuối cùng sẽ thắng.
+    """)
     mode = st.radio("Chọn chế độ chơi:", ("Người với AI", "Người với Người"))
 
     if mode == "Người với AI":
@@ -57,11 +63,11 @@ def main():
     start_game = st.button("Bắt đầu trò chơi")
 
     if start_game:
-        # Initialize game state in session state
-        if 'game' not in st.session_state:
-            st.session_state.game = LastCoinStanding(players)
-            st.session_state.move_count = 0
-            st.session_state.game_over = False
+        # Khởi tạo trạng thái trò chơi trong session state
+        st.session_state.game = LastCoinStanding(players)
+        st.session_state.move_count = 0
+        st.session_state.game_over = False
+        st.session_state.current_player_name = player_names[0]
 
     if 'game' in st.session_state and not st.session_state.game_over:
         game = st.session_state.game
@@ -69,8 +75,8 @@ def main():
         
         st.write(f"Còn {game.num_coins} tiền xu trong chồng")
         
-        if isinstance(game.players[game.nplayer - 1], Human_Player):
-            move = st.text_input(f"Nhập nước đi của người chơi {game.current_player}:", key=f"move_input_{move_count}")
+        if isinstance(game.players[game.current_player - 1], Human_Player):
+            move = st.text_input(f"Nhập nước đi của {st.session_state.current_player_name}:", key=f"move_input_{move_count}")
             submit_button = st.button("Thực hiện nước đi", key=f"submit_button_{move_count}")
             if submit_button:
                 if game.is_valid_move(move):
@@ -79,22 +85,43 @@ def main():
                     st.session_state.move_count = move_count
                     if not game.is_over():
                         game.switch_player()
+                        st.session_state.current_player_name = player_names[game.current_player - 1]
+                        # AI thực hiện nước đi ngay lập tức nếu đến lượt AI
+                        if isinstance(game.players[game.current_player - 1], AI_Player):
+                            ai_move = game.get_move()
+                            st.write(f"AI chọn: {ai_move}")
+                            game.make_move(ai_move)
+                            move_count += 1
+                            st.session_state.move_count = move_count
+                            if not game.is_over():
+                                game.switch_player()
+                                st.session_state.current_player_name = player_names[game.current_player - 1]
+                            else:
+                                st.session_state.game_over = True
+                                st.write("AI đã thắng!")
                     else:
                         st.session_state.game_over = True
-                        st.write(f"{player_names[game.current_player - 1]} đã thắng!")
+                        st.write(f"{st.session_state.current_player_name} đã thắng!")
                 else:
                     st.write("Nước đi không hợp lệ. Hãy thử lại.")
         else:
             ai_move = game.get_move()
             st.write(f"AI chọn: {ai_move}")
             game.make_move(ai_move)
+            move_count += 1
+            st.session_state.move_count = move_count
             if not game.is_over():
                 game.switch_player()
+                st.session_state.current_player_name = player_names[game.current_player - 1]
             else:
                 st.session_state.game_over = True
                 st.write("AI đã thắng!")
-            move_count += 1
-            st.session_state.move_count = move_count
+
+        st.button("Chơi lại", on_click=reset_game)
+
+def reset_game():
+    for key in st.session_state.keys():
+        del st.session_state[key]
 
 if __name__ == "__main__":
     main()
