@@ -44,7 +44,7 @@ def reset_game():
         del st.session_state[key]
 
 def main():
-    st.title("Trò Chơi Rút Xu Cuối Cùng")
+    st.title("LastCoinStanding")
     st.sidebar.title("Hướng dẫn trò chơi")
     
     st.sidebar.markdown("""
