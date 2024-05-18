@@ -16,12 +16,14 @@ class LastCoinStanding(TwoPlayerGame):
         self.num_coins -= int(move)
 
     def win(self):
+        # Nếu không còn xu, người vừa rút xu cuối cùng thua
         return self.num_coins == 0
 
     def is_over(self):
         return self.win()
 
     def scoring(self):
+        # Nếu trò chơi kết thúc, người vừa rút xu cuối cùng thua
         return 100 if self.win() else 0
 
     def is_valid_move(self, move):
@@ -68,6 +70,7 @@ def main():
     start_game = st.button("Bắt đầu trò chơi")
 
     if start_game:
+        # Khởi tạo trạng thái trò chơi trong session state
         st.session_state.game = LastCoinStanding(players)
         st.session_state.move_count = 0
         st.session_state.game_over = False
@@ -127,9 +130,11 @@ def main():
             else:
                 game.switch_player()
                 st.session_state.current_player_name = player_names[game.current_player - 1]
+
     if st.session_state.get('game_over', False):
         if st.button("Chơi lại"):
             reset_game()
             st.experimental_rerun()
+
 if __name__ == "__main__":
     main()
